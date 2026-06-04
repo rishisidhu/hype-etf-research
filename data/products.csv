@@ -1,0 +1,5 @@
+ticker,issuer,exchange,launch_date,fee_pct,fee_note,staking_model,custody,differentiator
+THYP,21Shares,Nasdaq,2026-05-12,0.30,no waiver,Figment stakes 30-70% (flexible),Anchorage + BitGo (joint),First US spot HYPE ETF (first-mover)
+BHYP,Bitwise,NYSE,2026-05-15,0.34,0% promo first month on first $500M AUM,in-house staking,Anchorage,First to stake in-house; publishes wallet addresses; largest by AUM
+HYPG,Grayscale,Nasdaq,2026-06-03,0.29,lowest headline fee,staking,Anchorage,Lowest fee in category
+TXXH,21Shares,Nasdaq,2026-04-28,,,n/a (leveraged),n/a,2x daily leveraged (40-Act) - excluded from spot comparisons

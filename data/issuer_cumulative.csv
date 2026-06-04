@@ -1,0 +1,4 @@
+ticker,as_of_date,cumulative_inflow_usd_m,aum_usd_m,avg_daily_vol_usd_m,source
+THYP,2026-05-29,46.43,,,ChainCatcher/SoSoValue
+BHYP,2026-05-29,59.70,,,ChainCatcher/SoSoValue
+BHYP,2026-05-27,55.00,62.92,19.8,Stocktwits/Bitwise/SoSoValue

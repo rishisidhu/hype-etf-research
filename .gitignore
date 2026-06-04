@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# pipenv virtualenv (when PIPENV_VENV_IN_PROJECT=1)
+.venv/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Charts are regenerated from scripts; keep source, ignore throwaway exports
+# (commenting this out — we DO want to commit final charts for the article)
+# charts/

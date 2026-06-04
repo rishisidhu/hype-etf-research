@@ -1,0 +1,4 @@
+week_label,period_start,period_end,net_inflow_usd_m,cumulative_usd_m,is_partial,source
+Partial wk 1,2026-05-12,2026-05-15,6.89,6.89,yes,spotedcrypto/SoSoValue
+Week 2,2026-05-18,2026-05-22,68.02,74.91,no,spotedcrypto/SoSoValue
+Week 3,2026-05-25,2026-05-29,25.57,110.00,no,ChainCatcher/SoSoValue
