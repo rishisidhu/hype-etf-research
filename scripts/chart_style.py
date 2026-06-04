@@ -2,35 +2,34 @@
 """
 chart_style.py — shared light "soft-glass" visual system for all charts.
 
-Imported by every chart_NN_*.py so the look stays consistent and is tweakable
-in one place. Aesthetic: elegant, clear, Medium-friendly. Soft off-white canvas,
-elevated card panel with subtle shadow + rounded corners, low-alpha gradient
-fills, hairline gridlines, refined type hierarchy. Designed to survive as a flat
-PNG/SVG (no fake blur that muddies on a white page).
+Light, elegant, Medium-friendly. Soft off-white canvas, elevated white card with
+subtle shadow + rounded corners, hairline gridlines, refined type hierarchy.
 """
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.patches import FancyBboxPatch
-import matplotlib.patheffects as pe
 
 # ---- palette (light) ------------------------------------------------------
-CANVAS   = "#F5F6F8"   # page-matching soft off-white (outermost)
-CARD     = "#FFFFFF"   # elevated panel
-INK      = "#1A1D21"   # primary text
-SUBINK   = "#5B6470"   # secondary text
-FAINT    = "#98A1AD"   # captions / footer
-GRID     = "#E9ECF1"   # hairline gridlines
-ACCENT   = "#11A37F"   # primary signal (HYPE / highlight) — refined teal-green
-ACCENT2  = "#E8845B"   # secondary series (e.g. 21Shares)
-ACCENT3  = "#3B7DD8"   # tertiary (BTC comparisons)
-MUTE     = "#C6CCD4"   # muted comparator bars
-GOLD     = "#D9A441"   # occasional emphasis / annotation
+CANVAS   = "#F5F6F8"
+CARD     = "#FFFFFF"
+INK      = "#1A1D21"
+SUBINK   = "#5B6470"
+FAINT    = "#98A1AD"
+GRID     = "#E9ECF1"
+ACCENT   = "#11A37F"
+ACCENT2  = "#E8845B"
+ACCENT3  = "#3B7DD8"
+MUTE     = "#C6CCD4"
+GOLD     = "#D9A441"
 
 BRAND = "HYPE ETF RESEARCH"
 
-# ---- fonts: prefer refined installed faces, fall back cleanly -------------
+# ---- fonts ----------------------------------------------------------------
+# Prefer faces matplotlib reads cleanly. Variable-font "Inter" is intentionally
+# NOT used: matplotlib can't extract its glyphs and renders blanks. On macOS,
+# Helvetica Neue / Menlo are always present and complete.
 def _pick(cands, default):
     have = {f.name for f in fm.fontManager.ttflist}
     for c in cands:
@@ -38,10 +37,9 @@ def _pick(cands, default):
             return c
     return default
 
-# Avoid overused defaults; prefer humanist/grotesque if present.
-DISPLAY = _pick(["Inter", "IBM Plex Sans", "Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
-BODY    = _pick(["Inter", "IBM Plex Sans", "Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
-MONO    = _pick(["IBM Plex Mono", "SF Mono", "Menlo", "DejaVu Sans Mono"], "DejaVu Sans Mono")
+DISPLAY = _pick(["Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
+BODY    = _pick(["Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
+MONO    = _pick(["Menlo", "SF Mono", "DejaVu Sans Mono"], "DejaVu Sans Mono")
 
 
 def apply_rc():
@@ -57,12 +55,8 @@ def apply_rc():
 
 
 def new_figure(figsize=(9.6, 6.6)):
-    """Canvas + an elevated rounded 'card' + the plotting axes on top."""
     apply_rc()
     fig = plt.figure(figsize=figsize, dpi=200)
-
-    # Card layer: a rounded rectangle with a soft shadow, drawn in figure coords.
-    # Shadow (slightly offset, very light).
     shadow = FancyBboxPatch((0.035, 0.045), 0.945, 0.93,
                             boxstyle="round,pad=0,rounding_size=0.022",
                             transform=fig.transFigure, facecolor="#000000",
@@ -75,8 +69,6 @@ def new_figure(figsize=(9.6, 6.6)):
                           edgecolor=GRID, linewidth=1.0, zorder=1)
     card.set_mutation_aspect(figsize[0] / figsize[1])
     fig.add_artist(card)
-
-    # Plotting axes sit inside the card with generous padding.
     ax = fig.add_axes([0.105, 0.165, 0.83, 0.56])
     ax.set_facecolor(CARD)
     ax.set_zorder(2)
