@@ -16,3 +16,4 @@ __pycache__/
 # Charts are regenerated from scripts; keep source, ignore throwaway exports
 # (commenting this out — we DO want to commit final charts for the article)
 # charts/
+charts/race_frames/
