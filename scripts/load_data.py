@@ -168,3 +168,28 @@ if __name__ == "__main__":
     d = load_daily_flows()
     print(f"\ndaily_flows: {len(d)} rows, cumulative ends at "
           f"${d.cumulative_usd_m.iloc[-1]:.2f}M")
+
+
+# ---- per-fund flows (Farside) ----------------------------------------------
+def load_fund_cumulative():
+    """Per-fund CUMULATIVE net inflows (Farside). Full window from May 12.
+
+    Source is separate from the SoSoValue combined series; the two trackers
+    differ by a few percent (methodology). Use Farside for per-fund views.
+    """
+    df = pd.read_csv(_path("cumulative_flows_by_fund.csv"))
+    df["date"] = pd.to_datetime(df["date"], utc=True)
+    for c in ("bhyp_cum_usd_m", "thyp_cum_usd_m", "hypg_cum_usd_m"):
+        df[c] = pd.to_numeric(df[c])
+    return df.sort_values("date").reset_index(drop=True)
+
+
+def fund_daily_from_cumulative():
+    """Derive per-fund DAILY net inflows by differencing the cumulative series,
+    so daily and cumulative can never disagree (single source of truth)."""
+    cum = load_fund_cumulative().set_index("date")
+    funds = ["bhyp_cum_usd_m", "thyp_cum_usd_m", "hypg_cum_usd_m"]
+    daily = cum[funds].diff()
+    daily.iloc[0] = cum[funds].iloc[0]  # first row: daily == initial cumulative
+    daily.columns = ["bhyp_usd_m", "thyp_usd_m", "hypg_usd_m"]
+    return daily.round(2).reset_index()
