@@ -195,3 +195,31 @@ if __name__ == "__main__":
     if "prices" in results and results["prices"] is not None:
         print("\nCurrent snapshot:")
         print(results["prices"].to_string(index=False))
+
+
+# 5. Price-comparison history (HYPE + BTC) for the Section 5 relative-fall panel.
+#    Separate from fetch_hype_mcap_history so the existing price-timeline data
+#    (hype_mcap_history.csv) is never disturbed. Long format, both coins.
+def fetch_price_compare(days=45):
+    print(f"[5] CoinGecko: HYPE + BTC price history ({days}d) for comparison panel ...")
+    frames = []
+    for cg_id, sym in [("hyperliquid", "HYPE"), ("bitcoin", "BTC")]:
+        time.sleep(CG_PAUSE)
+        data = _get(f"{CG_BASE}/coins/{cg_id}/market_chart",
+                    headers=_cg_headers(),
+                    params={"vs_currency": "usd", "days": days, "interval": "daily"})
+        prices = data.get("prices", [])
+        df = pd.DataFrame({
+            "date": [dt.datetime.fromtimestamp(p[0] / 1000, dt.UTC).date() for p in prices],
+            "coin": sym,
+            "price_usd": [p[1] for p in prices],
+        })
+        df = df.drop_duplicates(subset="date", keep="last")
+        frames.append(df)
+        rng = f"{df['date'].min()} -> {df['date'].max()}" if len(df) else "empty"
+        print(f"      {sym}: {len(df)} rows  ({rng})")
+    out_df = pd.concat(frames, ignore_index=True)
+    out = os.path.join(DATA_DIR, "price_compare.csv")
+    out_df.to_csv(out, index=False)
+    print(f"      -> {out} ({len(out_df)} rows total)")
+    return out_df

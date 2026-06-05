@@ -193,3 +193,30 @@ def fund_daily_from_cumulative():
     daily.iloc[0] = cum[funds].iloc[0]  # first row: daily == initial cumulative
     daily.columns = ["bhyp_usd_m", "thyp_usd_m", "hypg_usd_m"]
     return daily.round(2).reset_index()
+
+
+# ---- price comparison (HYPE vs BTC, indexed) -------------------------------
+def load_price_compare():
+    """HYPE + BTC daily price (CoinGecko), long format, for the Section 5
+    relative-fall panel. Separate pull from hype_mcap_history.csv."""
+    df = pd.read_csv(_path("price_compare.csv"))
+    df["date"] = pd.to_datetime(df["date"], utc=True)
+    df["price_usd"] = pd.to_numeric(df["price_usd"])
+    return df.sort_values(["coin", "date"]).reset_index(drop=True)
+
+
+def price_compare_indexed(start=None):
+    """Return HYPE + BTC price indexed to 100 at the first date >= start
+    (or the series start). Lets two assets at very different price levels be
+    compared on one axis as relative % moves."""
+    df = load_price_compare()
+    if start is not None:
+        start = pd.Timestamp(start, tz="UTC")
+        df = df[df["date"] >= start]
+    out = []
+    for c in df["coin"].unique():
+        s = df[df["coin"] == c].sort_values("date").copy()
+        base = s["price_usd"].iloc[0]
+        s["indexed"] = s["price_usd"] / base * 100.0
+        out.append(s)
+    return pd.concat(out, ignore_index=True)
