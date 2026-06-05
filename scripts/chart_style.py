@@ -4,6 +4,7 @@ chart_style.py — shared light "soft-glass" visual system for all charts.
 
 Light, elegant, Medium-friendly. Soft off-white canvas, elevated white card with
 subtle shadow + rounded corners, hairline gridlines, refined type hierarchy.
+The kicker auto-shrinks to fit the card width so longer kickers never overflow.
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -27,9 +28,6 @@ GOLD     = "#D9A441"
 BRAND = "HYPE ETF RESEARCH"
 
 # ---- fonts ----------------------------------------------------------------
-# Prefer faces matplotlib reads cleanly. Variable-font "Inter" is intentionally
-# NOT used: matplotlib can't extract its glyphs and renders blanks. On macOS,
-# Helvetica Neue / Menlo are always present and complete.
 def _pick(cands, default):
     have = {f.name for f in fm.fontManager.ttflist}
     for c in cands:
@@ -40,6 +38,10 @@ def _pick(cands, default):
 DISPLAY = _pick(["Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
 BODY    = _pick(["Helvetica Neue", "Arial", "DejaVu Sans"], "DejaVu Sans")
 MONO    = _pick(["Menlo", "SF Mono", "DejaVu Sans Mono"], "DejaVu Sans Mono")
+
+# Card geometry (figure-fraction coords) — shared so header/footer align.
+CARD_LEFT  = 0.105
+CARD_RIGHT = 0.935
 
 
 def apply_rc():
@@ -69,28 +71,47 @@ def new_figure(figsize=(9.6, 6.6)):
                           edgecolor=GRID, linewidth=1.0, zorder=1)
     card.set_mutation_aspect(figsize[0] / figsize[1])
     fig.add_artist(card)
-    ax = fig.add_axes([0.105, 0.165, 0.83, 0.56])
+    ax = fig.add_axes([CARD_LEFT, 0.165, CARD_RIGHT - CARD_LEFT, 0.56])
     ax.set_facecolor(CARD)
     ax.set_zorder(2)
     ax.patch.set_alpha(0)
     return fig, ax
 
 
+def _fit_kicker(fig, text, x, y, max_frac, start=10.5, floor=6.5):
+    """Draw the (letter-spaced) kicker, shrinking font until it fits max_frac
+    of figure width. Returns the drawn artist."""
+    fig.canvas.draw()  # ensure a renderer exists for width measurement
+    renderer = fig.canvas.get_renderer()
+    fig_w_px = fig.bbox.width
+    size = start
+    artist = fig.text(x, y, text, fontsize=size, color=ACCENT,
+                      family=MONO, weight="bold")
+    while size > floor:
+        bb = artist.get_window_extent(renderer=renderer)
+        if bb.width / fig_w_px <= max_frac:
+            break
+        size -= 0.25
+        artist.set_fontsize(size)
+    return artist
+
+
 def header(fig, kicker, headline, subhead):
     spaced = "\u2009".join(kicker.upper())
-    fig.text(0.105, 0.895, spaced, fontsize=10.5, color=ACCENT,
-             family=MONO, weight="bold")
-    fig.text(0.105, 0.825, headline, fontsize=22, color=INK,
+    # Available width for the kicker = card width (with a hair of right padding)
+    max_frac = (CARD_RIGHT - CARD_LEFT) - 0.005
+    _fit_kicker(fig, spaced, CARD_LEFT, 0.895, max_frac)
+    fig.text(CARD_LEFT, 0.825, headline, fontsize=22, color=INK,
              family=DISPLAY, weight="bold")
-    fig.text(0.105, 0.772, subhead, fontsize=12.5, color=SUBINK, family=BODY)
+    fig.text(CARD_LEFT, 0.772, subhead, fontsize=12.5, color=SUBINK, family=BODY)
 
 
 def footer(fig, source):
-    fig.add_artist(plt.Line2D([0.105, 0.935], [0.105, 0.105],
+    fig.add_artist(plt.Line2D([CARD_LEFT, CARD_RIGHT], [0.105, 0.105],
                    color=GRID, lw=1.0, transform=fig.transFigure))
-    fig.text(0.105, 0.072, BRAND, fontsize=9, color=FAINT,
+    fig.text(CARD_LEFT, 0.072, BRAND, fontsize=9, color=FAINT,
              family=MONO, weight="bold")
-    fig.text(0.935, 0.072, source, fontsize=8.4, color=FAINT,
+    fig.text(CARD_RIGHT, 0.072, source, fontsize=8.4, color=FAINT,
              family=BODY, ha="right")
 
 

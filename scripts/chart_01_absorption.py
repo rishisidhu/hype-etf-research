@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 """
-chart_01_absorption.py — Section 1 hook.
-HYPE ETF debut absorption (net inflows as % of token market cap, first 10
-trading days) vs BTC / ETH / SOL.
+chart_01_absorption.py — Section 1 hook (Chart 1 of 2).
+
+Reproduces a PUBLISHED figure from Kairos Research (X post, ~May 25 2026):
+spot HYPE ETFs absorbed 1.04% of HYPE's market cap in their first 10 trading
+days, vs BTC 0.59% / ETH 0.41% / SOL 0.31%, using a new-issuer cohort
+(excluding GBTC/ETHE legacy-trust outflows), normalized by each asset's market
+cap at launch.
+
+IMPORTANT: This chart REPRODUCES Kairos's published numbers. It is NOT an
+independent computation by this repo — we do not have the historical first-10-day
+flow data for the 2024 BTC/ETH launches to recompute it. Attribution and a link
+to the primary source belong in the article caption.
 
 Run:  pipenv run python scripts/chart_01_absorption.py
 """
@@ -50,10 +59,10 @@ def main():
         lbl.set_fontsize(11)
 
     cs.header(fig,
-              "ETF debut · first 10 trading days",
+              "ETF debut · first 10 trading days · per Kairos Research",
               "HYPE set a crypto-ETF debut record",
-              "Net inflows as a share of token market cap at launch")
-    cs.footer(fig, "FalconX research (May 2026), via spotedcrypto · reported — verify vs primary")
+              "Net inflows as a share of token market cap at launch (new-issuer cohort)")
+    cs.footer(fig, "Source: Kairos Research (@Kairos_Res), May 27 2026 · reproduced")
 
     cs.save(fig, "01_absorption", CHARTS)
 
